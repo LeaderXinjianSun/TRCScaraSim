@@ -1,10 +1,112 @@
-﻿<Window x:Class="TRCScaraSim.Views.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:prism="http://prismlibrary.com/"
-        prism:ViewModelLocator.AutoWireViewModel="True"
-        Title="{Binding Title}" Height="350" Width="525">
+﻿<Window
+    x:Class="TRCScaraSim.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock"
+    xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+    xmlns:local="clr-namespace:TRCScaraSim.Views"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:viewmodel="clr-namespace:TRCScaraSim.ViewModels"
+    xmlns:viewmodelviews="clr-namespace:TRCScaraSim.ViewModels.Views"
+    Width="1280"
+    Height="1024"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    Icon="/industrial-robot-11.ico"
+    WindowStartupLocation="CenterScreen">
+    <Window.Title>
+        <MultiBinding StringFormat="{}{0} v{1}">
+            <Binding Path="Title" />
+            <Binding Path="Version" />
+        </MultiBinding>
+    </Window.Title>
     <Grid>
-        <ContentControl prism:RegionManager.RegionName="ContentRegion" />
+        <Grid.Resources>
+            <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Menu>
+            <MenuItem Header="工具">
+                <MenuItem
+                    Header="Tool1"
+                    IsCheckable="True"
+                    IsChecked="{Binding Tool1.IsVisible}" />
+            </MenuItem>
+        </Menu>
+        <Grid Grid.Row="1">
+            <StackPanel Orientation="Horizontal">
+                <Button
+                    Width="48"
+                    Height="48"
+                    Margin="5" />
+            </StackPanel>
+        </Grid>
+        <avalonDock:DockingManager
+            Grid.Row="2"
+            AnchorablesSource="{Binding Tools}"
+            DocumentsSource="{Binding Files}"
+            IsVirtualizingAnchorable="True"
+            IsVirtualizingDocument="True">
+            <DockingManager.Theme>
+                <Vs2013LightTheme />
+            </DockingManager.Theme>
+            <DockingManager.LayoutItemTemplateSelector>
+                <viewmodel:PanesTemplateSelector>
+                    <viewmodel:PanesTemplateSelector.Tool1ViewTemplate>
+                        <DataTemplate>
+                            <Border Padding="6">
+                                <viewmodelviews:Tool1View />
+                            </Border>
+                        </DataTemplate>
+                    </viewmodel:PanesTemplateSelector.Tool1ViewTemplate>
+                </viewmodel:PanesTemplateSelector>
+            </DockingManager.LayoutItemTemplateSelector>
+            <DockingManager.LayoutItemContainerStyleSelector>
+                <viewmodel:PanesStyleSelector>
+                    <viewmodel:PanesStyleSelector.ToolStyle>
+                        <Style TargetType="{x:Type LayoutAnchorableItem}">
+                            <Setter Property="Title" Value="{Binding Model.Title}" />
+                            <Setter Property="Visibility" Value="{Binding Model.IsVisible, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static Visibility.Hidden}}" />
+                            <Setter Property="CanHide" Value="True" />
+                        </Style>
+                    </viewmodel:PanesStyleSelector.ToolStyle>
+                </viewmodel:PanesStyleSelector>
+            </DockingManager.LayoutItemContainerStyleSelector>
+            <LayoutRoot>
+                <LayoutPanel Orientation="Horizontal">
+                    <LayoutAnchorablePane DockWidth="240">
+                        <!--<LayoutAnchorable
+                            Title="项目目录"
+                            CanClose="False"
+                            CanHide="False">
+                            <TextBox Text="1234" />
+                        </LayoutAnchorable>-->
+                    </LayoutAnchorablePane>
+                    <LayoutDocumentPane>
+                        <!--<LayoutDocument Title="工具">
+                            <Button Height="30" Width="60" HorizontalAlignment="Left" VerticalAlignment="Top"></Button>
+                        </LayoutDocument>
+                        <LayoutDocument Title="文档">
+                            <TextBox Text="4321"></TextBox>
+                        </LayoutDocument>-->
+                    </LayoutDocumentPane>
+                </LayoutPanel>
+            </LayoutRoot>
+            <DockingManager.LayoutUpdateStrategy>
+                <local:LayoutInitializer />
+            </DockingManager.LayoutUpdateStrategy>
+        </avalonDock:DockingManager>
+
+        <Border
+            Grid.Row="3"
+            Height="20"
+            Background="AliceBlue">
+            <StatusBar />
+        </Border>
     </Grid>
+    <!--<avalonEdit:TextEditor></avalonEdit:TextEditor>-->
 </Window>
